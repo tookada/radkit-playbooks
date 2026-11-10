@@ -1,0 +1,130 @@
+name: smf_nexus_status_validation
+description: Multi-device validation checking SMF core nodes and adjacent Nexus 9K Leaf switches
+group: EPC
+
+variables:
+  smf_node:
+    type: list
+    required: true
+    description: Name of the SMF node in RADKit inventory
+    example: smf-01, smf-02
+  leaf_switches:
+    type: list
+    required: true
+    description: List of adjacent Nexus 9K switches in RADKit inventory
+    example: leaf-01, leaf-02
+
+commands:
+  # ==========================================
+  # SMF Node Status Verifications
+  # ==========================================
+  - id: check_system_ready
+    target: '{{ variables.smf_node }}'
+    device_type: ULTRA_CORE_5G_SMF
+    command: show system
+    description: Verify that the overall system status is 100% ready
+    capture:
+      system_ready_match:
+        regex: 'system status percent-ready 100\.0'
+        match: count
+        type: integer
+    validations:
+      - name: system_percent_ready_is_100
+        source: captures.system_ready_match
+        condition: equals
+        expected: 1
+
+  - id: capture_ops_center_repo
+    target: '{{ variables.smf_node }}'
+    device_type: ULTRA_CORE_5G_SMF
+    command: show system ops-center repository
+    description: Capture repository version details for informative reporting
+    capture:
+      repository_version:
+        regex: '(?<=io\/)(?P<value>.*)'
+        match: first
+        type: string
+        required: false
+
+  - id: check_nrf_registration
+    target: '{{ variables.smf_node }}'
+    device_type: ULTRA_CORE_5G_SMF
+    command: show nrf registration-info
+    description: Verify that the SMF registration state is active and REGISTERED
+    capture:
+      registered_count:
+        regex: 'REGISTERED'
+        match: count
+        type: integer
+    validations:
+      - name: nrf_is_registered
+        source: captures.registered_count
+        condition: greater_than
+        expected: 0
+
+  - id: check_role_redundancy
+    target: '{{ variables.smf_node }}'
+    device_type: ULTRA_CORE_5G_SMF
+    command: show role instance-id 1; show role instance-id 2
+    description: Verify role redundancy contains one PRIMARY and one STANDBY instance
+    capture:
+      redundancy_match:
+        regex: 'result "PRIMARY"\nresult "STANDBY"'
+        match: count
+        type: integer
+    validations:
+      - name: role_has_primary_and_standby
+        source: captures.redundancy_match
+        condition: equals
+        expected: 1
+
+  - id: check_georeplication_status
+    target: '{{ variables.smf_node }}'
+    device_type: ULTRA_CORE_5G_SMF
+    command: show georeplication-status
+    description: Verify georeplication has passed successfully
+    capture:
+      geo_pass_count:
+        regex: 'result "pass"'
+        match: count
+        type: integer
+    validations:
+      - name: georeplication_status_passed
+        source: captures.geo_pass_count
+        condition: greater_than
+        expected: 0
+
+  # ==========================================
+  # Nexus 9K Switches Status Verifications
+  # ==========================================
+  - id: check_nexus_environment_fans
+    target: '{{ variables.leaf_switches }}'
+    device_type: NX_OS
+    command: show environment fan
+    description: Verify that all system cooling fans are in active/normal operational state (no 'Failed' status)
+    capture:
+      fan_failed_count:
+        regex: '^.*\bFailed\b.*$'
+        match: count
+        type: integer
+    validations:
+      - name: zero_fan_failures_detected
+        source: captures.fan_failed_count
+        condition: equals
+        expected: 0
+
+  - id: check_bfd_neighbors_vrf_all
+    target: '{{ variables.leaf_switches }}'
+    device_type: NX_OS
+    command: show bfd neighbors vrf all | no-more
+    description: Verify that no BFD neighbors are in the Down state across all VRFs
+    capture:
+      bfd_down_count:
+        regex: '\s*\S+\s+\S+\s+\S+\s+\S+\s+Down\s+'
+        match: count
+        type: integer
+    validations:
+      - name: zero_bfd_sessions_down
+        source: captures.bfd_down_count
+        condition: equals
+        expected: 0

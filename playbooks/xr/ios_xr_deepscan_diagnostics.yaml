@@ -1,0 +1,222 @@
+name: ios_xr_deepscan_diagnostics
+description: Comprehensive IOS-XR DeepScan diagnostic validation and log capture
+group: Diagnostics
+device_type: IOS_XR
+
+variables:
+  cpu_locations:
+    type: list
+    required: true
+    description: List of CPU/RP card locations to run location-specific diagnostic commands
+    default: ["0/RP0/CPU0", "0/RP1/CPU0"]
+
+commands:
+  # ==========================================
+  # 1. Admin-Mode Tech Support Commands
+  # ==========================================
+  - id: admin_tech_hbloss
+    command: admin show tech HBloss
+    description: Admin mode tech support for HBloss
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_os
+    command: admin show tech os
+    description: Admin mode tech support for os
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_card_mgr
+    command: admin show tech card-mgr
+    description: Admin mode tech support for card-mgr
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_ctrace
+    command: admin show tech ctrace
+    description: Admin mode tech support for ctrace
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_alarm_mgr
+    command: admin show tech alarm_mgr
+    description: Admin mode tech support for alarm_mgr
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_control_ethernet
+    command: admin show tech control-ethernet
+    description: Admin mode tech support for control-ethernet
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_sdr_mgr
+    command: admin show tech sdr_mgr
+    description: Admin mode tech support for sdr_mgr
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_shelf_mgr
+    command: admin show tech shelf_mgr
+    description: Admin mode tech support for shelf_mgr
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_envmon
+    command: admin show tech envmon
+    description: Admin mode tech support for envmon
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_obfl
+    command: admin show tech obfl
+    description: Admin mode tech support for obfl
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_fpd
+    command: admin show tech-support fpd
+    description: Admin mode tech support for fpd
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_fabric
+    command: admin show tech-support fabric
+    description: Admin mode tech support for fabric
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: admin_tech_syslog
+    command: admin show tech-support syslog
+    description: Admin mode tech support for syslog
+    type: file_capture
+    cleanup: "admin delete {{ remote_file_path }}"
+    timeout: 1800
+
+  # ==========================================
+  # 2. Admin-Mode Show / Diagnostics Commands
+  # ==========================================
+  - id: admin_show_env
+    command: admin show env
+    description: Admin mode command for show env
+
+  - id: admin_show_logging_voltage
+    command: admin show logging onboard voltage
+    description: Admin mode command for show logging onboard voltage
+
+  - id: admin_show_logging_temperature
+    command: admin show logging onboard temperature
+    description: Admin mode tech support for onboard temperature
+
+  - id: admin_show_reboot_history_card
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show reboot-history card location {{ location }}
+    description: Admin mode command for show reboot-history card location
+
+  - id: admin_show_reboot_history_admin_vm
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show reboot-history admin-vm location {{ location }}
+    description: Admin mode command for show reboot-history admin-vm location
+
+  - id: admin_show_sdr_default_detail
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show sdr default-sdr detail location {{ location }}
+    description: Admin mode command for show sdr default-sdr detail location
+
+  - id: admin_show_controller_card_mgr_trace
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show controller card-mgr trace all location {{ location }}
+    description: Admin mode command for show controller card-mgr trace all location
+
+  - id: admin_show_shelf_mgr_trace
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show shelf_mgr trace all location {{ location }}
+    description: Admin mode command for show shelf_mgr trace all location
+
+  - id: admin_show_environment_trace
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: admin show environment trace all location {{ location }}
+    description: Admin mode command for show environment trace all location
+
+  # ==========================================
+  # 3. XR-Mode Tech Support Commands
+  # ==========================================
+  - id: xr_tech
+    command: show tech
+    description: XR mode tech support for tech
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_fabric
+    command: show tech fabric
+    description: XR mode tech support for tech fabric
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_ofa
+    command: show tech-support ofa
+    description: XR mode tech support for tech-support ofa
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_pfi
+    command: show tech-support pfi
+    description: XR mode tech support for tech-support pfi
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_install_one_showtech
+    command: show tech-support install one-showtech
+    description: XR mode tech support for tech-support install one-showtech
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_mpa_mgr
+    command: show tech mpa-mgr
+    description: XR mode tech support for tech mpa-mgr
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: xr_tech_syslog
+    command: show tech-support syslog
+    description: XR mode tech support for tech-support syslog
+    type: file_capture
+    cleanup: "delete {{ remote_file_path }}"
+    timeout: 1800
+
+  # ==========================================
+  # 4. XR-Mode Show / Diagnostics Commands
+  # ==========================================
+  - id: xr_show_reboot_history
+    foreach: '{{ variables.cpu_locations }}'
+    as: location
+    command: show reboot history location {{ location }}
+    description: XR mode tech support for reboot history location
+
+  - id: xr_show_controllers_fia_trace
+    command: show controllers fia trace brcm-error location all
+    description: XR mode tech support for controllers fia trace brcm-error location all

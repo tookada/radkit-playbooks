@@ -1,0 +1,98 @@
+name: smf_status_validation
+description: Comprehensive status validation for Cisco Ultra Core 5G SMF
+group: EPC
+device_type: ULTRA_CORE_5G_SMF
+commands:
+  - id: check_system_ready
+    command: show system
+    description: Verify that the overall system status is 100% ready
+    capture:
+      system_ready_match:
+        regex: 'system status percent-ready 100\.0'
+        match: count
+        type: integer
+    validations:
+      - name: system_percent_ready_is_100
+        source: captures.system_ready_match
+        condition: equals
+        expected: 1
+
+  - id: capture_ops_center_repo
+    command: show system ops-center repository
+    description: Capture repository version details for informative reporting
+    capture:
+      repository_version:
+        regex: '(?<=io\/)(?P<value>.*)'
+        match: first
+        type: string
+        required: false
+
+  - id: check_nrf_registration
+    command: show nrf registration-info
+    description: Verify that the SMF registration state is active and REGISTERED
+    capture:
+      registered_count:
+        regex: 'REGISTERED'
+        match: count
+        type: integer
+    validations:
+      - name: nrf_is_registered
+        source: captures.registered_count
+        condition: greater_than
+        expected: 0
+
+  - id: check_role_redundancy
+    command: show role instance-id 1; show role instance-id 2
+    description: Verify role redundancy contains one PRIMARY and one STANDBY instance
+    capture:
+      redundancy_match:
+        regex: 'result "PRIMARY"\nresult "STANDBY"'
+        match: count
+        type: integer
+    validations:
+      - name: role_has_primary_and_standby
+        source: captures.redundancy_match
+        condition: equals
+        expected: 1
+
+  - id: check_bfd_neighbors
+    command: show bfd-neigbor
+    description: Verify that no BFD neighbors are in the DOWN state
+    capture:
+      bfd_down_count:
+        regex: 'DOWN'
+        match: count
+        type: integer
+    validations:
+      - name: zero_bfd_neighbors_down
+        source: captures.bfd_down_count
+        condition: equals
+        expected: 0
+
+  - id: check_bgp_neighbors
+    command: show bgp-neighbors
+    description: Verify that no BGP neighbors are in the never state
+    capture:
+      bgp_never_count:
+        regex: 'never'
+        match: count
+        type: integer
+    validations:
+      - name: zero_bgp_neighbors_never_established
+        source: captures.bgp_never_count
+        condition: equals
+        expected: 0
+
+  - id: check_georeplication_status
+    command: show georeplication-status
+    description: Verify georeplication has passed successfully
+    capture:
+      geo_pass_count:
+        regex: 'result "pass"'
+        match: count
+        type: integer
+    validations:
+      - name: georeplication_status_passed
+        source: captures.geo_pass_count
+        condition: greater_than
+        expected: 0

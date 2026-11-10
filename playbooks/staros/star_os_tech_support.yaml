@@ -1,0 +1,38 @@
+name: star_os_tech_support
+description: System Status Diagnostics (SSD) capture and safe cleanup for Cisco StarOS (UPF / ASR5500) devices
+group: Diagnostics
+device_type: STAR_OS
+continue_on_error: false
+
+effort:
+  manual_minutes: 25
+  per_node_minutes: 0
+
+variables:
+  destination_path:
+    type: string
+    description: Remote directory on StarOS to write SSD archive
+    default: "/sftp"
+
+commands:
+  - id: staros_version
+    command: show version
+    fail_on_cli_error: true
+    description: Verify active software version, build number, and image details
+    capture:
+      image_version:
+        regex: 'Image Version:\s+(?P<value>[\w.]+)'
+        required: false
+      build_number:
+        regex: 'Image Build Number:\s*(?P<value>\S+)'
+        required: false
+
+  - id: staros_ssd_capture
+    type: file_capture
+    command: "show support details to file {{ variables.destination_path }}/{{ target }}_ssd_{{ timestamp }} compress -n"
+    fail_on_cli_error: true
+    description: Generate full System Status Diagnostics bundle compressed with gzip
+    generated_path:
+      regex: '(\S+_ssd_\S+\.tar\.gz|\/sftp\/\S+\.tar\.gz)'
+    cleanup: "delete {{ remote_file_path }} -n"
+    timeout: 1800

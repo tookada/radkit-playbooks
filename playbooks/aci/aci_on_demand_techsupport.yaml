@@ -1,0 +1,23 @@
+name: aci_on_demand_techsupport
+description: Collect and verify all three On-Demand TechSupport archives for an ACI switch via APIC
+group: Diagnostics
+device_type: APIC
+
+variables:
+  node_id:
+    type: integer
+    required: true
+    description: Fabric switch node ID (101-4000); the primary target must be an APIC
+    pattern: '^[0-9]+$'
+    example: 101
+
+commands:
+  - id: collect_techsupport
+    type: file_capture
+    command: trigger techsupport switch {{ variables.node_id }} include-upgrade-logs
+    timeout: 1800
+    collection:
+      collector: aci
+      poll_interval: 30
+      transfer_timeout: 3600
+    cleanup: false

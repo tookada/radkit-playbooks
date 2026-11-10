@@ -1,0 +1,118 @@
+name: cee_tac_debug_fetch
+description: Retrieve an existing Cloud-Native 5G CEE (SMF / UPF / PCF) TAC debug package by ID, merge if needed, and extract via Kubernetes
+group: Diagnostics
+continue_on_error: false
+
+effort:
+  manual_minutes: 20
+  per_node_minutes: 0
+
+variables:
+  cee_node:
+    type: string
+    required: true
+    description: RADKit device name for CEE Ops-Center CLI (e.g. cee-01)
+  tac_id:
+    type: string
+    required: true
+    description: Pre-existing TAC debug package ID reported by the target CEE
+  k8s_node:
+    type: string
+    required: false
+    default: ""
+    description: "Optional override for K8s Master host (auto-discovered from CEE if omitted)"
+
+commands:
+  - id: discover_k8s_host
+    target: "{{ variables.cee_node }}"
+    command: show running-config k8s ingress-host-name
+    fail_on_cli_error: true
+    description: Query active Kubernetes host ingress IP address from CEE configuration
+    capture:
+      k8s_ip:
+        regex: '(?P<value>(?:\d{1,3}\.){3}\d{1,3})'
+        match: first
+        required: true
+
+  - id: verify_k8s_node
+    target: "{{ variables.k8s_node or steps.discover_k8s_host.k8s_ip }}"
+    command: "echo 'K8s Master connectivity verified on ' $(hostname)"
+    fail_on_cli_error: true
+    description: Confirm K8s master node exists in inventory and is reachable before starting collection
+
+  - id: verify_debug_pkg
+    target: "{{ variables.cee_node }}"
+    command: tac-debug-pkg list
+    fail_on_cli_error: true
+    description: Verify that the requested TAC ID is recorded in the available packages inventory
+    fail_on_validation: true
+    capture:
+      pkg_list:
+        regex: '(?P<value>[\s\S]+)'
+        match: first
+        required: true
+    validations:
+      - name: tac_id_exists
+        source: captures.pkg_list
+        condition: contains
+        expected: "{{ variables.tac_id }}"
+
+  - id: discover_tac_pod
+    target: "{{ variables.k8s_node or steps.discover_k8s_host.k8s_ip }}"
+    command: "kubectl get pods -A | grep show-tac-manager | head -n 1"
+    fail_on_cli_error: true
+    description: Resolve active Kubernetes namespace and show-tac-manager pod without hardcoding
+    capture:
+      namespace:
+        regex: '(?m)^(?P<value>[a-zA-Z0-9_\-]+)\s+\S*show-tac-manager\S*'
+        match: first
+        required: true
+      pod_name:
+        regex: '(?m)^\S+\s+(?P<value>\S*show-tac-manager\S*)'
+        match: first
+        required: true
+
+  - id: check_existing_merged_tar
+    target: "{{ variables.k8s_node or steps.discover_k8s_host.k8s_ip }}"
+    command: "kubectl exec -n {{ steps.discover_tac_pod.namespace }} -c show-tac-manager {{ steps.discover_tac_pod.pod_name }} -- sh -c 'if test -e /home/tac/{{ variables.tac_id }}/tac_debug_pkg_{{ variables.tac_id }}.tar; then test -s /home/tac/{{ variables.tac_id }}/tac_debug_pkg_{{ variables.tac_id }}.tar && tar -tf /home/tac/{{ variables.tac_id }}/tac_debug_pkg_{{ variables.tac_id }}.tar >/dev/null && echo MERGE_EXISTS; else echo MERGE_NEEDED; fi'"
+    description: Reuse a valid merged archive, merge only if absent, and stop on an empty or corrupt archive
+    fail_on_cli_error: true
+    capture:
+      merge_state:
+        regex: '(?m)^[ \t]*(?P<value>MERGE_EXISTS|MERGE_NEEDED)[ \t]*\r?$'
+        match: first
+        required: true
+
+  - id: merge_debug_pkg
+    target: "{{ variables.cee_node }}"
+    command: "tac-debug-pkg merge tac-id {{ variables.tac_id }}"
+    fail_on_cli_error: true
+    when:
+      source: steps.check_existing_merged_tar.merge_state
+      equals: MERGE_NEEDED
+    description: Assemble package into tarball if not already merged
+    timeout: 1800
+
+  - id: extract_and_download_tac_pkg
+    target: "{{ variables.k8s_node or steps.discover_k8s_host.k8s_ip }}"
+    type: file_capture
+    command: "umask 077 && kubectl cp -n {{ steps.discover_tac_pod.namespace }} -c show-tac-manager {{ steps.discover_tac_pod.pod_name }}:/home/tac/{{ variables.tac_id }}/tac_debug_pkg_{{ variables.tac_id }}.tar /tmp/{{ variables.cee_node }}_{{ variables.tac_id }}.tar && chmod 600 /tmp/{{ variables.cee_node }}_{{ variables.tac_id }}.tar && echo 'Archive extracted: /tmp/{{ variables.cee_node }}_{{ variables.tac_id }}.tar'"
+    fail_on_cli_error: true
+    description: Extract tar archive from pod to K8s host /tmp and download to local disk
+    continue_on_error: false
+    capture:
+      archive_path:
+        regex: '(?m)^[ \t]*Archive extracted:[ \t]+(?P<value>/tmp/\S+\.tar)[ \t]*\r?$'
+        required: true
+    generated_path:
+      path: "/tmp/{{ variables.cee_node }}_{{ variables.tac_id }}.tar"
+      regex: 'Archive extracted:\s*(\S+\.tar|\/tmp\/\S+\.tar)'
+    cleanup: "rm -f {{ remote_file_path }}"
+    timeout: 1800
+
+  - id: cleanup_cee_pkg
+    target: "{{ variables.cee_node }}"
+    command: "tac-debug-pkg delete tac-id {{ variables.tac_id }}"
+    fail_on_cli_error: true
+    description: Purge debug session from CEE to reclaim container storage only after successful download
+    requires_step: extract_and_download_tac_pkg
