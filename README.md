@@ -3,8 +3,9 @@
 Public YAML playbook collection for RADKit Playbook, providing reusable workflows
 for Cisco network diagnostics, validation, and technical support data collection.
 
-This repository contains playbooks and collection validation tools, not the
-RADKit Playbook program source code or RADKit credentials.
+Download the YAML-only collection to use these playbooks. You do not need Git,
+the validation tools, or the tests. The RADKit Playbook program is provided
+separately.
 
 ## Collection
 
@@ -30,13 +31,28 @@ RADKit Playbook program source code or RADKit credentials.
 The program package is distributed separately. This initial collection does not
 yet claim a tested compatibility matrix with a publicly released wheel.
 
-## Usage
+## Download
 
-Clone this repository or download its ZIP archive:
+From the [latest release](https://github.com/tookada/radkit-playbooks/releases/latest),
+download **`radkit-playbooks.zip`** and optionally **`SHA256SUMS`** to check the
+download. Choose the named ZIP asset, not GitHub's automatic "Source code"
+archives, which contain the entire repository.
+
+On macOS, with both downloaded files in the current directory:
 
 ```bash
-git clone https://github.com/tookada/radkit-playbooks.git
+shasum -a 256 -c SHA256SUMS
+unzip radkit-playbooks.zip -d ~/radkit-playbooks
 ```
+
+The ZIP contains only the YAML collection under `playbooks/`; it does not include
+scripts, tests, or CI configuration. Extract new versions into a fresh directory
+to avoid keeping playbooks removed in a later release.
+
+Until the first release is available, individual YAML files can be downloaded
+from the collection links above.
+
+## Usage
 
 In the RADKit client Python session, use the existing connected `service` object:
 
@@ -55,7 +71,7 @@ pb.preview("smf_status_validation", target_node="smf-01")
 pb.run("smf_status_validation", target_node="smf-01")
 ```
 
-Adjust the path to your checkout. Point to **`playbooks/`**, not the repository
+Adjust the path to your extracted collection. Point to **`playbooks/`**, not the repository
 root, so workflow configuration YAML is not discovered as a playbook.
 `smf-01` and other example names are placeholders for your RADKit inventory.
 Inspect each playbook's variables and commands before execution.
@@ -75,24 +91,11 @@ Inspect each playbook's variables and commands before execution.
 - Validate behavior against your device/software version in a controlled lab.
   Static CI checks are not proof of device compatibility or live execution.
 
-## Validation and Contributions
+## Contributing
 
-```bash
-python3 -m pip install -r requirements-validation.txt
-python3 scripts/validate_playbooks.py
-python3 -m unittest discover -s tests -v
-```
-
-GitHub Actions runs these checks on pushes and pull requests using public hosted
-runners without device access or credentials. Checks cover YAML parsing,
-duplicate keys, basic required fields, unique identifiers, and capture regex
-syntax. They are not a complete RADKit Playbook schema or runtime test.
-
-For changes, open a pull request describing the purpose, variables, expected
-results, device/software versions, and whether lab validation was performed.
-Never push customer names, identifiable device names, real IP addresses,
-credentials, internal URLs, diagnostic outputs, or archives. Use generic example
-values. Public branches and pull requests are visible before review.
+For authoring, validation, and release procedures, see the
+[maintainer guide](CONTRIBUTING.md). These development steps are not required to
+use the downloaded playbooks.
 
 ## License
 
