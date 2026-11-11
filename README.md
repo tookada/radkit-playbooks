@@ -7,6 +7,20 @@ Download the YAML-only collection to use these playbooks. You do not need Git,
 the validation tools, or the tests. The RADKit Playbook program is provided
 separately.
 
+## Documentation and Program Downloads
+
+- [User and authoring documentation source](docs/index.md)
+- Planned GitHub Pages site: <https://tookada.github.io/radkit-playbooks/>
+  (publication is being prepared).
+- [Program wheel distribution](https://github.com/tookada/radkit-playbook-releases):
+  public binary releases and customer installation instructions are still being
+  prepared.
+
+The documentation in this repository is the public source of truth for usage,
+YAML authoring, compatibility, and the playbook catalog. See the
+[installation status](docs/getting-started/installation.md) and
+[operational safety guide](docs/user-guide/safety.md) before use.
+
 ## Collection
 
 | Platform | Playbook | Purpose |
@@ -49,12 +63,12 @@ The ZIP contains only the YAML collection under `playbooks/`; it does not includ
 scripts, tests, or CI configuration. Extract new versions into a fresh directory
 to avoid keeping playbooks removed in a later release.
 
-Until the first release is available, individual YAML files can be downloaded
-from the collection links above.
+Individual YAML files can also be downloaded from the collection links above.
 
 ## Usage
 
-In the RADKit client Python session, use the existing connected `service` object:
+After installing a compatible program package, use the existing connected
+`service` object in your RADKit client Python session:
 
 ```python
 from pathlib import Path
@@ -65,11 +79,13 @@ pb = rpb.bind(
     playbook_dir=Path("~/radkit-playbooks/playbooks").expanduser(),
 )
 pb.list()
-pb.show("smf_status_validation")
-pb.preview("smf_status_validation", target_node="smf-01")
-# Execute only after reviewing the preview and confirming authorization.
-pb.run("smf_status_validation", target_node="smf-01")
+print(pb.show("smf_status_validation"))
+print(pb.preview("smf_status_validation", target_node="smf-01"))
 ```
+
+For execution, results, collection, and upload procedures, see the
+[Quickstart](docs/getting-started/quickstart.md) and
+[user guide](docs/user-guide/running.md).
 
 Adjust the path to your extracted collection. Point to **`playbooks/`**, not the repository
 root, so workflow configuration YAML is not discovered as a playbook.

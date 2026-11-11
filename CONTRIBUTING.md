@@ -25,6 +25,38 @@ Never push customer names, identifiable device names, real IP addresses,
 credentials, internal URLs, diagnostic outputs, or archives. Use generic example
 values. Public branches and pull requests are visible before review.
 
+## Public Documentation
+
+User-facing documentation is maintained in `docs/` in this repository, not in
+the program-source or binary-release repositories. Keep implementation/design
+documents, source-build instructions, raw outputs, and private environments out
+of the public tree. Copy only explicitly reviewed public-facing material;
+never import another repository's Git history.
+
+```bash
+python3 -m pip install -r requirements-docs.txt -r requirements-validation.txt
+python3 scripts/check_public_content.py
+python3 -m unittest discover -s tests -v
+python3 -m mkdocs build --strict
+```
+
+The content checker rejects common credential/identifier patterns, non-public
+hosts, unreviewed external URLs, unexpected document files, and source/private
+documentation directories. It does not replace a full manual confidentiality
+review: names, context, screenshots, and operational details can evade patterns.
+Do not post sensitive findings in a public pull request or issue.
+
+The **Documentation** workflow checks pull requests without deployment and builds
+the static site from this public checkout only. Pushes to `main` and dispatches
+on `main` can deploy using GitHub Pages. Enable **Settings > Pages > Source >
+GitHub Actions** before deployment. No device credentials, private source, or
+internal runner is needed. The theme uses local assets without Google Fonts.
+
+Documentation changes do not require a new YAML collection or program release.
+The YAML-only customer ZIP still excludes documentation, scripts, tests, and CI.
+Keep program-release availability and installation limitations explicit; do not
+publish unverified client-launcher commands as a supported procedure.
+
 ## Build the Customer Download
 
 ```bash

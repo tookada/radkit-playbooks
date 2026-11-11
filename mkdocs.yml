@@ -1,0 +1,70 @@
+site_name: RADKit Playbook
+site_description: User and YAML authoring documentation for RADKit Playbook
+site_url: https://tookada.github.io/radkit-playbooks/
+repo_url: https://github.com/tookada/radkit-playbooks
+repo_name: tookada/radkit-playbooks
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: site
+use_directory_urls: false
+theme:
+  name: material
+  font: false
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: getting-started/overview.md
+      - Installation and Compatibility: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+  - User Guide:
+      - Discovering Playbooks: user-guide/discovering.md
+      - Previewing: user-guide/previewing.md
+      - Running and Results: user-guide/running.md
+      - Optional TAC Upload: user-guide/cxd-upload.md
+      - Local Metrics: user-guide/metrics.md
+      - Operational Safety: user-guide/safety.md
+  - Playbook Catalog:
+      - All Public Playbooks: catalog/index.md
+      - StarOS SSD: catalog/staros-ssd.md
+      - CEE Debug Packages: catalog/cee-tac-debug.md
+      - ACI TechSupport: catalog/aci-techsupport.md
+      - SMF and Nexus: catalog/smf-validation.md
+      - IOS XR DeepScan: catalog/ios-xr-deepscan.md
+  - Authoring:
+      - YAML Schema: authoring/schema.md
+      - Variables: authoring/variables.md
+      - Multi-Device Routing: authoring/multi-device.md
+      - Captures and Chaining: authoring/captures.md
+      - Polling and Sleep: authoring/polling-sleep.md
+      - File Capture and Cleanup: authoring/file-capture.md
+      - Complete Reference: PLAYBOOK_YAML_GUIDE.md
+  - Troubleshooting:
+      - FAQ: troubleshooting/faq.md
+      - Authentication and Upload: troubleshooting/oidc-cxd.md
+      - IOS XR SFTP: troubleshooting/sftp-xr.md
