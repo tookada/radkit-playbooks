@@ -49,7 +49,7 @@ Open `http://127.0.0.1:8000/`. Serving over HTTP allows local search/navigation
 assets to load. This is offline documentation, not a claim that RADKit itself
 can connect to a remote service without network access.
 
-## Does the public repository grant a reuse license?
+## Is this a production release?
 
-No license has been selected yet. Public visibility alone is not a reuse,
-modification, or redistribution grant. Terms must be confirmed by the rights holder.
+This is a beta version for pilot users. Features and behavior may change.
+Review the playbook and target devices before execution.

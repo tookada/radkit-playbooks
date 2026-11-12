@@ -1,76 +1,99 @@
-# Installation and Compatibility
+# Installation
 
-## Current Availability
+## Overview
 
-**Public program wheels are not yet released.** This page describes the selected
-targets and verified pilot scope, not a completed customer installation procedure.
-Binary releases will be available from
-[radkit-playbook-releases](https://github.com/tookada/radkit-playbook-releases).
+RADKit Playbook runs YAML-defined workflows through Cisco RADKit to automate
+device commands, validation, and diagnostic file collection. Install the program
+as a Python wheel and download the YAML playbooks separately.
 
-Do not install from an unverified source or use a wheel for a different Python
-ABI, operating system, or CPU.
+> **Beta for pilot users:** Features and behavior may change. Review the
+> playbook and target devices before execution.
 
-## Initial Targets and Pilot Evidence
+## Available Binaries
 
-All three pilots used standard, GIL-enabled CPython 3.14 and RADKit 2.0.15.
-Each passed 105 source tests and 105 installed-wheel tests, plus a limited StarOS
-version/SSD-generation/SFTP-download test.
+The pilot version uses **Python 3.14** and **RADKit Client 2.0.15**.
+Choose the wheel matching your OS and CPU:
 
-| Target | Pilot interpreter and OS | Program wheel platform |
+| OS | CPU | Wheel filename |
 |---|---|---|
-| macOS arm64 | Python 3.14.10; macOS 26.7.3 | `macosx_11_0_arm64` |
-| Windows x64 | Python 3.14.9; Windows x64 | `win_amd64` |
-| Linux x86_64 | Python 3.14.10; Ubuntu 18.04, glibc 2.27 | `manylinux2014_x86_64` / `manylinux_2_17_x86_64` |
+| macOS | Apple Silicon / arm64 | `radkit_playbook-0.1.0-cp314-cp314-macosx_11_0_arm64.whl` |
+| Windows | x64 | `radkit_playbook-0.1.0-cp314-cp314-win_amd64.whl` |
+| Linux (glibc) | x86_64 | `radkit_playbook-0.1.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl` |
 
-The macOS 11.0 tag reflects checked compilation settings; macOS 11 and every
-intervening version were **not** runtime-tested. The Linux program wheel passed
-auditwheel's glibc 2.17 policy, which is not validation of every RADKit dependency
-or distribution. Ubuntu 18.04 was a legacy lab host, not a recommended customer OS.
+Use standard CPython 3.14, not the free-threaded build.
+Intel Macs and Alpine Linux (musl) are not supported by these wheels.
 
-Intel macOS, Windows/Linux ARM64, Alpine/musl, other Python versions, and
-free-threaded Python are outside this initial target matrix.
+## Installation
 
-The live tests disabled cleanup only in local YAML copies. Live deletion, TAC
-upload, other device platforms, and original RADKit installer launcher
-integration were not established by these tests. A RADKit certificate
-serial-number deprecation warning was observed without preventing collection.
+### 1. Download
 
-## Installation Requirements
+Download your wheel from
+[v0.1.0 pilot beta](https://github.com/tookada/radkit-playbook-releases/releases/tag/v0.1.0).
 
-Before customer release, the installation procedure must confirm:
+Download `radkit-playbooks.zip` from the
+[v0.1.0 YAML playbook release](https://github.com/tookada/radkit-playbooks/releases/tag/v0.1.0)
+and extract it to a directory of your choice. The ZIP contains a `playbooks/`
+directory.
 
-1. A working, authorized [RADKit client](https://radkit.cisco.com/) environment.
-2. The exact interpreter that the RADKit session uses and its Python ABI/CPU.
-3. Installation of the matching wheel and its runtime dependencies into that
-   interpreter's environment, without modifying an unrelated Python installation.
-4. Successful import and discovery from the intended client or launcher.
+### 2. Install RADKit and the Wheel
 
-Program wheels contain native modules, not a universal `py3-none-any` package.
-The program does not bundle RADKit or all Python dependencies. An offline
-installation needs compatible dependency wheels prepared in advance; copying
-only the program wheel is not a complete offline-installation procedure.
+Install Python 3.14 for your OS and CPU first. Then run the commands below from
+the directory containing your downloaded wheel. Use a new `.venv` so an existing
+RADKit installation is not changed. Internet access is needed to install
+dependencies.
 
-Exact customer commands will be published after launcher integration, dependency
-handling, and license terms are confirmed.
-
-## Download the YAML Collection
-
-From the [latest playbook release](https://github.com/tookada/radkit-playbooks/releases/latest),
-download `radkit-playbooks.zip` and `SHA256SUMS`.
-Use the named ZIP asset, not GitHub's automatic source archive.
-
-On macOS:
+#### macOS (Apple Silicon)
 
 ```bash
-shasum -a 256 -c SHA256SUMS
-unzip radkit-playbooks.zip -d ~/radkit-playbooks
+python3.14 -m venv .venv
+.venv/bin/python -m pip install --index-url https://radkit.cisco.com/pip/ --extra-index-url https://pypi.org/simple cisco-radkit-client==2.0.15
+.venv/bin/python -m pip install ./radkit_playbook-0.1.0-cp314-cp314-macosx_11_0_arm64.whl
+.venv/bin/python -m pip check
+.venv/bin/python -m radkit_client
 ```
 
-On Linux, use `sha256sum -c SHA256SUMS`. On Windows, compare the SHA-256 value
-from `Get-FileHash .\radkit-playbooks.zip -Algorithm SHA256` with `SHA256SUMS`,
-then extract with `Expand-Archive`.
+#### Windows (PowerShell)
 
-Extract into a fresh directory when updating, and point `playbook_dir` to the
-contained `playbooks/` directory, not the repository root.
-Program and collection releases are independent; check each release's
-compatibility notes. License terms remain pending.
+```powershell
+py -3.14 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --index-url https://radkit.cisco.com/pip/ --extra-index-url https://pypi.org/simple cisco-radkit-client==2.0.15
+.\.venv\Scripts\python.exe -m pip install .\radkit_playbook-0.1.0-cp314-cp314-win_amd64.whl
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m radkit_client
+```
+
+#### Linux (x86_64)
+
+```bash
+python3.14 -m venv .venv
+.venv/bin/python -m pip install --index-url https://radkit.cisco.com/pip/ --extra-index-url https://pypi.org/simple cisco-radkit-client==2.0.15
+.venv/bin/python -m pip install ./radkit_playbook-0.1.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+.venv/bin/python -m pip check
+.venv/bin/python -m radkit_client
+```
+
+Stop if any command fails. Always start RADKit with the environment's Python
+command shown above, rather than a shortcut that uses another environment.
+
+### 3. Load the Playbooks
+
+Connect to your service following the [RADKit documentation](https://radkit.cisco.com/).
+In that RADKit session, use your connected `service` object:
+
+```python
+from pathlib import Path
+import radkit_playbook as rpb
+
+pb = rpb.bind(
+    service,
+    playbook_dir=Path("~/radkit-playbooks/playbooks").expanduser(),
+)
+print(pb.list())
+```
+
+Replace the example path with the extracted `playbooks/` directory.
+Continue with the [quickstart](quickstart.md) to preview and run a playbook.
+
+If needed, compare your wheel's SHA-256 hash with its entry in the release's
+`SHA256SUMS` using `shasum -a 256` (macOS), `sha256sum` (Linux), or
+`Get-FileHash -Algorithm SHA256` (PowerShell).

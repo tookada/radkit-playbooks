@@ -38,9 +38,8 @@ jobs:
             Download radkit-playbooks.zip for the YAML-only collection.
             SHA256SUMS provides its SHA-256 checksum.
 
-            Static validation passed. This does not certify live device
-            compatibility. Maintainers must record tested environments and
-            confirm license terms before publishing this draft.
+            Beta for pilot users: features and behavior may change.
+            Review the playbook and target devices before execution.
         run: |
           gh release create "$TAG_NAME" \
             dist/radkit-playbooks.zip dist/SHA256SUMS \

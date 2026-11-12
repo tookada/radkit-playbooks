@@ -2,7 +2,7 @@
 
 The public collection contains these seven YAML files. Download the named
 `radkit-playbooks.zip` asset from the
-[collection release](https://github.com/tookada/radkit-playbooks/releases/latest).
+[v0.1.0 collection release](https://github.com/tookada/radkit-playbooks/releases/tag/v0.1.0).
 The YAML itself is the authoritative command list; review it before execution.
 
 | Platform | Playbook | Guide |

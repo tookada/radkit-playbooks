@@ -11,6 +11,7 @@ PUBLIC_HOSTS = {
     "github.com", "tookada.github.io", "radkit.cisco.com",
     "developer.cisco.com", "www.cisco.com", "software.cisco.com",
     "example.com", "example.org", "example.net", "localhost", "127.0.0.1",
+    "pypi.org",
 }
 DOCUMENTATION_NETWORKS = tuple(
     ipaddress.ip_network(value)
@@ -68,7 +69,7 @@ def check_public_content(root: Path) -> list[str]:
         if (root / name).exists():
             findings.append(f"{name}: non-public source or legacy documentation directory")
     candidates = [
-        root / name for name in ("README.md", "CONTRIBUTING.md", "mkdocs.yml")
+        root / name for name in ("README.md", "CONTRIBUTING.md", "RELEASE_NOTES.md", "mkdocs.yml")
         if (root / name).is_file()
     ]
     candidates.extend(root.glob("requirements*.txt"))

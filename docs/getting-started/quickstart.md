@@ -2,8 +2,7 @@
 
 This example assumes RADKit Playbook is installed in the Python environment used
 by your authorized RADKit client and `service` is already connected.
-Public program releases and customer installation steps are still being prepared;
-see [installation status](installation.md).
+For setup, see the [installation guide](installation.md).
 
 Authentication and service connection follow the
 [RADKit documentation](https://radkit.cisco.com/); no credentials or real service

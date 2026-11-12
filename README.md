@@ -10,15 +10,12 @@ separately.
 ## Documentation and Program Downloads
 
 - [User and authoring documentation source](docs/index.md)
-- Planned GitHub Pages site: <https://tookada.github.io/radkit-playbooks/>
-  (publication is being prepared).
-- [Program wheel distribution](https://github.com/tookada/radkit-playbook-releases):
-  public binary releases and customer installation instructions are still being
-  prepared.
+- [Documentation site](https://tookada.github.io/radkit-playbooks/)
+- [Program wheels: v0.1.0 pilot beta](https://github.com/tookada/radkit-playbook-releases/releases/tag/v0.1.0)
 
 The documentation in this repository is the public source of truth for usage,
 YAML authoring, compatibility, and the playbook catalog. See the
-[installation status](docs/getting-started/installation.md) and
+[installation guide](docs/getting-started/installation.md) and
 [operational safety guide](docs/user-guide/safety.md) before use.
 
 ## Collection
@@ -42,12 +39,15 @@ YAML authoring, compatibility, and the playbook catalog. See the
   to the selected playbook. CEE collection also requires access to the relevant
   Kubernetes host.
 
-The program package is distributed separately. This initial collection does not
-yet claim a tested compatibility matrix with a publicly released wheel.
+The program package is distributed separately. Program and collection versions
+are independent.
+
+> **Beta for pilot users:** Features and behavior may change. Review the
+> playbook and target devices before execution.
 
 ## Download
 
-From the [latest release](https://github.com/tookada/radkit-playbooks/releases/latest),
+From the [v0.1.0 collection release](https://github.com/tookada/radkit-playbooks/releases/tag/v0.1.0),
 download **`radkit-playbooks.zip`** and optionally **`SHA256SUMS`** to check the
 download. Choose the named ZIP asset, not GitHub's automatic "Source code"
 archives, which contain the entire repository.
@@ -112,9 +112,3 @@ Inspect each playbook's variables and commands before execution.
 For authoring, validation, and release procedures, see the
 [maintainer guide](CONTRIBUTING.md). These development steps are not required to
 use the downloaded playbooks.
-
-## License
-
-No reuse license has been selected yet. Public visibility alone does not grant
-permission to reuse, modify, or redistribute these files. License terms will be
-added separately once confirmed by the rights holder.

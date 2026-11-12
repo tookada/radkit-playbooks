@@ -4,13 +4,13 @@ RADKit Playbook runs declarative YAML workflows through an already connected
 Cisco RADKit service. Use it to inspect device state, evaluate captured values,
 and collect diagnostic files.
 
-## Publication Status
+## Downloads
 
-The [YAML collection](https://github.com/tookada/radkit-playbooks) is public.
-The [program's binary distribution repository](https://github.com/tookada/radkit-playbook-releases)
-is being prepared; **no public program wheel has been released yet**.
-See [installation and compatibility](getting-started/installation.md) for the
-current scope and remaining installation limitations.
+- [Program wheels: v0.1.0 pilot beta](https://github.com/tookada/radkit-playbook-releases/releases/tag/v0.1.0)
+- [YAML collection: v0.1.0](https://github.com/tookada/radkit-playbooks/releases/tag/v0.1.0)
+
+See the [installation guide](getting-started/installation.md) for available
+binaries and setup instructions. Program and collection versions are independent.
 
 ## Start Here
 
@@ -41,12 +41,10 @@ print(pb.preview("star_os_tech_support", target_node="upf-01"))
 `upf-01` is a fictional inventory name. Replace example values with your
 authorized inventory and review the YAML before running commands.
 
-## Scope and Licensing
+## Beta Notice
+
+This is a beta version for pilot users. Features and behavior may change.
 
 Preview is not a device health check or proof that commands are safe for your
 environment. Collection may create and delete files and consume device resources.
 TAC uploads are optional and transfer selected local files outside your machine.
-
-License terms are pending. Public visibility alone does not grant permission to
-reuse, modify, or redistribute these materials. Do not treat this project's
-documentation as a support or compatibility commitment beyond its stated tests.

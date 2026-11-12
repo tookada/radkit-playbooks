@@ -86,10 +86,15 @@ After review, checks, and any required controlled lab validation:
 3. The **Release YAML collection** workflow validates the collection, runs tests,
    builds the YAML-only ZIP, and creates a **draft** GitHub Release with the ZIP
    and checksum attached.
-4. Inspect the draft and document compatibility and actual lab validation.
-   Resolve license terms with the rights holder before inviting customer reuse.
+4. Inspect the draft, its assets, and the intended compatibility. For a pilot
+   release, use the beta notice and mark the release as a prerelease.
 5. Publish the release from GitHub after approval. Verify the download and
-   checksum; the README's latest-release link will then resolve to it.
+   checksum, then update the versioned download links in the README and docs.
+
+Use `/releases/tag/<version>` links for pilot prereleases. GitHub's
+`/releases/latest` redirect excludes prereleases and must not be used as their
+download entry point. Keep the binary repository's links and user documentation
+in sync; program and YAML versions are independent.
 
 The workflow uses a GitHub-provided token scoped to this repository. It does not
 access internal source, device credentials, or internal runners. It runs only
